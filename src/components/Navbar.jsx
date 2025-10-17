@@ -1,6 +1,7 @@
 import React from "react";
 import "../styles/diseno.css"; // Importa tu archivo de estilos
 import "../styles/styles.css";
+import "../pages/Contact.jsx";
 
 export default function Navbar() {
   return (
@@ -9,7 +10,6 @@ export default function Navbar() {
         <a className="navbar-brand" href="index.html">
           Level-Up Gamer
         </a>
-
         <button
           className="navbar-toggler"
           type="button"
@@ -32,7 +32,7 @@ export default function Navbar() {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="contacto.html">
+              <a className="nav-link" href="/Contact">
                 Contacto
               </a>
             </li>
@@ -48,7 +48,7 @@ export default function Navbar() {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="login.html">
+              <a className="nav-link" href="login">
                 Inicio de sesión
               </a>
             </li>

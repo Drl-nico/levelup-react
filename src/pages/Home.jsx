@@ -6,6 +6,7 @@ import "../styles/diseno.css"; // Importación del archivo CSS
 // Importa imágenes desde src/assets (coloca las imágenes en src/assets)
 import ps5Img from "../assets/ps5-producto.webp";
 import asusImg from "../assets/asus.jpeg";
+import silla from "../assets/silla gamer.jpg";
 
 export default function Home() {
   const products = [
@@ -30,7 +31,7 @@ export default function Home() {
       title: "Silla Gamer Secretlab Titan",
       price: "$349,990 CLP",
       // Usar placeholder para evitar el error. Reemplaza por la importación real si añades el archivo.
-      img: "https://via.placeholder.com/600x400?text=Imagen+no+disponible",
+      img: silla,
       href: "/detalle3",
       alt: "Silla Gamer Secretlab Titan",
     },
