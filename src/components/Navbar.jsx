@@ -1,15 +1,15 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "../styles/diseno.css"; // Importa tu archivo de estilos
 import "../styles/styles.css";
-import "../pages/Contact.jsx";
 
 export default function Navbar() {
   return (
     <nav className="navbar navbar-expand-lg nav-dark">
       <div className="container">
-        <a className="navbar-brand" href="index.html">
+        <Link className="navbar-brand" to="/">
           Level-Up Gamer
-        </a>
+        </Link>
         <button
           className="navbar-toggler"
           type="button"
@@ -22,40 +22,40 @@ export default function Navbar() {
         <div className="collapse navbar-collapse" id="navMain1">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
-              <a className="nav-link" href="index.html">
+              <Link className="nav-link" to="/">
                 Inicio
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="catalogo.html">
+              <Link className="nav-link" to="/catalogo">
                 Catálogo
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/Contact">
+              <Link className="nav-link" to="/Contact">
                 Contacto
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="blog.html">
+              <Link className="nav-link" to="/blogs">
                 Blogs
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="carrito.html">
+              <Link className="nav-link" to="/carrito">
                 Carrito{" "}
                 <span className="badge badge-accent cart-badge">0</span>
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="login">
+              <Link className="nav-link" to="/login">
                 Inicio de sesión
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="registro.html">
+              <Link className="nav-link" to="/registro">
                 Registrarse
-              </a>
+              </Link>
             </li>
           </ul>
         </div>

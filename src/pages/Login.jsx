@@ -9,20 +9,36 @@ export default function Login() {
   const [mensaje, setMensaje] = useState("");
 
   const iniciarSesion = () => {
-    const usuarioValido = "admin@gmail.com";
-    const contrasenaValida = "123";
-
     // Limpia mensajes previos
     setMensaje("");
 
-    if (email === usuarioValido && password === contrasenaValida) {
-      // Redirige al index
-      window.location.href = "/index.html";
-    } else {
-      setMensaje(
-        '<div class="alert alert-danger">Usuario o contraseña incorrectos o datos faltantes.</div>'
-      );
+    // Intentar validar contra usuarios guardados en localStorage
+    let usuarios = [];
+    try {
+      usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+    } catch (err) {
+      usuarios = [];
     }
+
+    const encontrado = usuarios.find((u) => u.email === email && u.password === password);
+
+    if (encontrado) {
+      // Redirige al inicio (SPA: usamos location para demo)
+      window.location.href = "/";
+      return;
+    }
+
+    // Fallback: credenciales administradoras hardcodeadas (mantener compatibilidad)
+    const usuarioValido = "admin@gmail.com";
+    const contrasenaValida = "123";
+    if (email === usuarioValido && password === contrasenaValida) {
+      window.location.href = "/";
+      return;
+    }
+
+    setMensaje(
+      '<div class="alert alert-danger">Usuario o contraseña incorrectos o datos faltantes.</div>'
+    );
   };
 
   return (
