@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/diseno.css"; // Importa tu archivo de estilos
-import "../styles/styles.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -23,16 +22,35 @@ export default function Login() {
     const encontrado = usuarios.find((u) => u.email === email && u.password === password);
 
     if (encontrado) {
+      // Guardar usuario en sesión (localStorage) y redirigir al inicio
+      try {
+        localStorage.setItem(
+          "currentUser",
+          JSON.stringify({ email: encontrado.email, role: "user" })
+        );
+      } catch (err) {
+        // ignore storage errors
+      }
       // Redirige al inicio (SPA: usamos location para demo)
       window.location.href = "/";
       return;
     }
 
-    // Fallback: credenciales administradoras hardcodeadas (mantener compatibilidad)
-    const usuarioValido = "admin@gmail.com";
-    const contrasenaValida = "123";
+    // Fallback: credenciales administradoras hardcodeadas (nuevas: redirigen a /administrador)
+    const usuarioValido = "Admin123@gmail.com";
+    const contrasenaValida = "admin123";
     if (email === usuarioValido && password === contrasenaValida) {
-      window.location.href = "/";
+      // Guardar usuario admin en sesión y redirigir al panel de administrador
+      try {
+        localStorage.setItem(
+          "currentUser",
+          JSON.stringify({ email: usuarioValido, role: "admin" })
+        );
+      } catch (err) {
+        // ignore storage errors
+      }
+      // Redirigir al panel de administrador dentro de la SPA
+      window.location.href = "/administrador";
       return;
     }
 
@@ -67,7 +85,7 @@ export default function Login() {
           className="logo mb-2"
         />
         <h2>
-          <a href="/Administrador/Admin.html">Level-Up</a>
+          <a href="/">Level-Up</a>
         </h2>
       </div>
 

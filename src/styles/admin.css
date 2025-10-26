@@ -1,0 +1,191 @@
+/* Scoped admin styles under .admin-page-root to avoid global side-effects */
+.admin-page-root {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  display: block;
+}
+
+.admin-page-root .sidebar {
+  width: 220px;
+  background-color: #f1f1f1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-right: 1px solid #ddd;
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  z-index: 40;
+}
+
+.admin-page-root .sidebar .top-section {
+  padding-left: 1rem;
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin-bottom: 1rem;
+}
+
+.admin-page-root .sidebar nav {
+  flex-grow: 1;
+}
+
+.admin-page-root .sidebar nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-page-root .sidebar nav ul a {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+}
+
+.admin-page-root .sidebar nav ul li {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: #333;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.admin-page-root .sidebar nav ul li:hover,
+.admin-page-root .sidebar nav ul li.active {
+  background-color: #0d6efd;
+  color: white;
+  border-radius: 0 20px 20px 0;
+}
+
+.admin-page-root .sidebar nav ul li svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.admin-page-root .sidebar .bottom-section {
+  padding-left: 1rem;
+  border-top: 1px solid #ddd;
+}
+
+.admin-page-root .sidebar .bottom-section ul li {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: #333;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.admin-page-root .sidebar .bottom-section ul li:hover {
+  background-color: #0d6efd;
+  color: white;
+  border-radius: 0 20px 20px 0;
+}
+
+/* Main content styles */
+.admin-page-root .main-content {
+  margin-left: 220px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.admin-page-root header {
+  background-color: #fff;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e6e6e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Ensure header action buttons are visible and laid out correctly */
+.admin-page-root .main-content header .actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Make sure admin buttons have a minimum width and visible z-index */
+.admin-page-root .main-content header .btn {
+  min-width: 110px;
+  z-index: 10;
+}
+
+/* If some global styles override .btn colors, enforce sensible defaults here */
+.admin-page-root .main-content header .btn.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: #fff;
+}
+.admin-page-root .main-content header .btn.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: #fff;
+}
+
+.admin-page-root header .notification {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  fill: #333;
+  transition: fill 0.2s ease;
+}
+
+.admin-page-root header .notification:hover { fill: #0d6efd; }
+
+.admin-page-root main {
+  padding: 1rem 1.5rem;
+  background-color: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: calc(100vh - 72px);
+}
+
+.admin-page-root .content-top,
+.admin-page-root .content-bottom {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  padding: 1rem;
+}
+
+/* Small helpers */
+.admin-page-root .logo { font-weight: 700; font-size: 1.1rem; }
+.admin-page-root .mb-3 { margin-bottom: 1rem; }
+
+/* Responsive: collapse sidebar into top bar on small screens */
+@media (max-width: 900px) {
+  .admin-page-root .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    display: block;
+  }
+
+  .admin-page-root .main-content { margin-left: 0; }
+
+  .admin-page-root .sidebar nav ul li {
+    display: inline-flex;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .admin-page-root .sidebar .bottom-section { display: none; }
+}
+
+/* Accessibility: focus states */
+.admin-page-root .sidebar nav ul a:focus,
+.admin-page-root .sidebar nav ul a:hover { outline: none; }
