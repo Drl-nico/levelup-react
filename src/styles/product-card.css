@@ -1,0 +1,9 @@
+/* Limita la altura de las tarjetas de producto y mejora la presentación visual */
+.product-card {
+  max-height: 480px;
+  min-height: 420px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
