@@ -1,6 +1,6 @@
 import React from "react";
 import "../styles/styles.css";
-import eventImg from "../assets/principal.png";
+import eventImg from "../assets/534355bc13402cf564762cd0c6fae65f.jpg";
 
 export default function DetalleBlog1() {
   return (

@@ -43,8 +43,7 @@ export default function Navbar() {
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/carrito">
-                Carrito{" "}
-                <span className="badge badge-accent cart-badge">0</span>
+                Carrito
               </Link>
             </li>
             <li className="nav-item">

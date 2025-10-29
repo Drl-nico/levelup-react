@@ -1,6 +1,6 @@
 import React from "react";
 import "../styles/styles.css";
-import sillaImg from "../assets/silla_gamer-removebg-preview(2).png";
+import sillaImg from "../assets/silla_gamer-removebg-preview(3).png";
 
 export default function Detalle3() {
   return (

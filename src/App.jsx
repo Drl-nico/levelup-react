@@ -17,32 +17,35 @@ import Blog from "./pages/Blog";
 import DetalleBlog1 from "./pages/Detalle-blog1";
 import DetalleBlog2 from "./pages/Detalle-blog2";
 import Carrito from "./pages/Carrito";
+import { CartProvider } from "./context/CartContext";
 
 export default function App() {
   return (
     <div className="app-root">
-      <Navbar /> {/* <-- Componente cerrado */}
-      <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/administrador" element={<Administrador />} />
-          <Route path="/cliente" element={<Cliente />} />
-          <Route path="/nuevo-cliente" element={<NuevoCliente />} />
-          <Route path="/Contact" element={<Contact />} />
-          <Route path="/registro" element={<Registro />} />
-          <Route path="/Catalogo" element={<Catalogo/>} />
-          <Route path="/Detalle" element={<Detalle/>} />
-          <Route path="/Detalle2" element={<Detalle2/>} />
-          <Route path="/Detalle3" element={<Detalle3/>} />
-          <Route path="/Blog" element={<Blog/>} />
-          <Route path="/DetalleBlog1" element={<DetalleBlog1/>} />
-          <Route path="/DetalleBlog2" element={<DetalleBlog2/>} />
-          <Route path="/Carrito" element={<Carrito/>} />
-        </Routes>
-      </main>
-      <Footer />
+      <CartProvider>
+        <Navbar />
+        <main>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/administrador" element={<Administrador />} />
+            <Route path="/cliente" element={<Cliente />} />
+            <Route path="/nuevo-cliente" element={<NuevoCliente />} />
+            <Route path="/Contact" element={<Contact />} />
+            <Route path="/registro" element={<Registro />} />
+            <Route path="/Catalogo" element={<Catalogo />} />
+            <Route path="/Detalle" element={<Detalle />} />
+            <Route path="/Detalle2" element={<Detalle2 />} />
+            <Route path="/Detalle3" element={<Detalle3 />} />
+            <Route path="/Blog" element={<Blog />} />
+            <Route path="/DetalleBlog1" element={<DetalleBlog1 />} />
+            <Route path="/DetalleBlog2" element={<DetalleBlog2 />} />
+            <Route path="/Carrito" element={<Carrito />} />
+          </Routes>
+        </main>
+        <Footer />
+      </CartProvider>
     </div>
   );
 }

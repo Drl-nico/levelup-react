@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 import "../styles/styles2.css";
 import "../styles/catalogo.css";
 import ps5Img from "../assets/ps5-producto.webp";
@@ -12,8 +13,10 @@ import Carcasssone from "../assets/JM002-removebg-preview.png";
 import Mouse from "../assets/MS001-removebg-preview.png";
 import Mousepad from "../assets/MP001-removebg-preview.png";
 import Polera from "../assets/PP001-removebg-preview.png";
-
 export default function Catalogo() {
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
+
   const products = useMemo(
     () => [
       { id: 1, title: "PlayStation 5", category: "Consolas", price: 549990, img: ps5Img, href: "/detalle" },
@@ -98,7 +101,15 @@ export default function Catalogo() {
                 <p className="section-title">{p.category}</p>
                 <div className="d-flex justify-content-between align-items-center mt-3">
                   <p className="h5 mb-0">${p.price.toLocaleString()} CLP</p>
-                  <button className="btn btn-primary">Agregar</button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                      addToCart(p);
+                      navigate('/Carrito');
+                    }}
+                  >
+                    Agregar
+                  </button>
                 </div>
               </div>
             </div>

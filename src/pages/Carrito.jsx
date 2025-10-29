@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 import '../styles/carrito.css';
 
 const productosIniciales = [
@@ -16,49 +17,47 @@ const productosIniciales = [
 ];
 
 const Carrito = () => {
+  const location = useLocation();
+  const productoSeleccionado = location.state?.productoSeleccionado;
+
+  const { cartItems, removeFromCart, updateQuantity, cartTotal, addToCart } = useCart();
+
   const [productos, setProductos] = useState(() => {
     const savedProducts = localStorage.getItem("productosAdmin");
     return savedProducts ? JSON.parse(savedProducts) : productosIniciales;
   });
 
-  const [carrito, setCarrito] = useState(() => {
-    const savedCart = localStorage.getItem("carrito");
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
 
-  useEffect(() => {
-    localStorage.setItem("carrito", JSON.stringify(carrito));
-  }, [carrito]);
-
-  const agregarAlCarrito = (indice) => {
-    const producto = productos[indice];
-    setCarrito(prevCarrito => {
-      const existe = prevCarrito.find(item => item.codigo === producto.codigo);
-      if (existe) {
-        return prevCarrito.map(item =>
-          item.codigo === producto.codigo
-            ? { ...item, cantidad: item.cantidad + 1 }
-            : item
-        );
-      }
-      return [...prevCarrito, { ...producto, cantidad: 1 }];
-    });
-  };
-
-  const eliminarDelCarrito = (indice) => {
-    setCarrito(prevCarrito => prevCarrito.filter((_, i) => i !== indice));
-  };
-
-  const vaciarCarrito = () => {
-    setCarrito([]);
-  };
-
-  const calcularTotal = () => {
-    return carrito.reduce((total, item) => total + (item.precio * item.cantidad), 0);
-  };
 
   return (
     <div className="carrito-container">
+      
+      {/* Mostrar producto seleccionado desde Catalogo */}
+      {productoSeleccionado && (
+        <section className="producto-seleccionado">
+          <h2>Producto seleccionado:</h2>
+          <div className="producto-detalle">
+            <img src={productoSeleccionado.img} alt={productoSeleccionado.title} />
+            <h3>{productoSeleccionado.title}</h3>
+            <p>Categoría: {productoSeleccionado.category}</p>
+            <p>Precio: ${productoSeleccionado.price.toLocaleString()} CLP</p>
+            <button
+              onClick={() => addToCart({
+                id: productoSeleccionado.id,
+                title: productoSeleccionado.title,
+                price: productoSeleccionado.price,
+                img: productoSeleccionado.img,
+                category: productoSeleccionado.category
+              })}
+              className="btn-agregar"
+            >
+              🛒 Agregar al carrito
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Lista de productos disponibles */}
       <section className="productos" id="product-list">
         <h2>Productos Disponibles</h2>
         <div className="productos-grid">
@@ -69,11 +68,14 @@ const Carrito = () => {
               <p className="precio">${p.precio.toLocaleString()} CLP</p>
               <p className="descripcion">{p.descripcion}</p>
               <div className="producto-botones">
-                <Link to={`/detalle/${i}`} className="btn-detalle">
-                  <button>Ver detalle</button>
-                </Link>
-                <button 
-                  onClick={() => agregarAlCarrito(i)}
+                <button
+                  onClick={() => addToCart({
+                    id: p.codigo,
+                    title: p.nombre,
+                    price: p.precio,
+                    img: p.img,
+                    category: p.descripcion
+                  })}
                   className="btn-agregar"
                 >
                   🛒 Agregar al carrito
@@ -84,24 +86,25 @@ const Carrito = () => {
         </div>
       </section>
 
+      {/* Carrito actual */}
       <aside className="carrito-actual">
         <h2>Tu Carrito</h2>
         <div id="cart-list">
-          {carrito.length === 0 ? (
+          {cartItems.length === 0 ? (
             <p className="carrito-vacio">Tu carrito está vacío</p>
           ) : (
-            carrito.map((item, i) => (
-              <div key={item.codigo} className="carrito-item">
+            cartItems.map((item, i) => (
+              <div key={item.id} className="carrito-item">
                 <div className="item-info">
-                  <span className="item-nombre">{item.nombre}</span>
-                  <span className="item-cantidad">x{item.cantidad}</span>
+                  <span className="item-nombre">{item.title}</span>
+                  <span className="item-cantidad">x{item.quantity}</span>
                 </div>
                 <div className="item-precio-acciones">
                   <span className="item-precio">
-                    ${(item.precio * item.cantidad).toLocaleString()} CLP
+                    ${(item.price * item.quantity).toLocaleString()} CLP
                   </span>
-                  <button 
-                    onClick={() => eliminarDelCarrito(i)}
+                  <button
+                    onClick={() => removeFromCart(item.id)}
                     className="btn-eliminar"
                     title="Eliminar del carrito"
                   >
@@ -112,19 +115,21 @@ const Carrito = () => {
             ))
           )}
         </div>
-        {carrito.length > 0 && (
+        {cartItems.length > 0 && (
           <>
             <div id="cart-total">
-              Total: ${calcularTotal().toLocaleString()} CLP
+              Total: ${cartTotal.toLocaleString()} CLP
             </div>
             <div className="carrito-acciones">
-              <button 
-                onClick={vaciarCarrito}
+              <button
+                onClick={() => {
+                  cartItems.forEach(item => removeFromCart(item.id));
+                }}
                 className="btn-vaciar"
               >
                 Vaciar Carrito
               </button>
-              <button 
+              <button
                 className="btn-pagar"
                 onClick={() => alert('¡Gracias por tu compra!')}
               >
