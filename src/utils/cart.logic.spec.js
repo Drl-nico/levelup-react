@@ -105,7 +105,7 @@ describe('Lógica del Carrito', () => {
 
       const total = logicaCarrito.calculateCartTotal(itemsCarrito);
 
-      expect(total).toBe(400); // (100 * 2) + (200 * 1)
+      expect(total).toBe(400);
     });
   });
 
@@ -126,7 +126,7 @@ describe('Lógica del Carrito', () => {
 
       const conteo = logicaCarrito.calculateCartCount(itemsCarrito);
 
-      expect(conteo).toBe(5); // 2 + 3
+      expect(conteo).toBe(5); 
     });
   });
 });
