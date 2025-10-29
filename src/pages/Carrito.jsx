@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import '../utils/Carrito.logic.js';
 import '../styles/carrito.css';
 
 const productosIniciales = [

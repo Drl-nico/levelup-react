@@ -87,11 +87,13 @@ export default function Catalogo() {
             <div className="card card-dark h-100">
               <div className="product-image">
                 <img
+                // eslint-disbable-next-line no-undef
                   src={p.img || principal}
                   alt={p.title}
                   className="img-fluid"
                   onError={(e) => {
                     e.currentTarget.onerror = null;
+                    // eslint-disbable-next-line no-undef
                     e.currentTarget.src = principal;
                   }}
                 />
