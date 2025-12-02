@@ -1,51 +1,84 @@
-import React, { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import "../styles/styles2.css";
 import "../styles/catalogo.css";
+
+// Imágenes locales (IMPORTANTE: todas las rutas correctas)
 import ps5Img from "../assets/ps5-producto.webp";
 import asusImg from "../assets/asus-removebg-preview.png";
 import sillaImg from "../assets/silla_gamer-removebg-preview(3).png";
-import Catan from "../assets/JM001-removebg-preview.png";
-import Audifonos from "../assets/AC002-removebg-preview.png";
-import ControlXbox from "../assets/AC001-removebg-preview.png";
-import Carcasssone from "../assets/JM002-removebg-preview.png";
-import Mouse from "../assets/MS001-removebg-preview.png";
-import Mousepad from "../assets/MP001-removebg-preview.png";
-import Polera from "../assets/PP001-removebg-preview.png";
+import CatanImg from "../assets/JM001-removebg-preview.png";
+import AudifonosImg from "../assets/AC002-removebg-preview.png";
+import ControlXboxImg from "../assets/AC001-removebg-preview.png";
+import CarcassonneImg from "../assets/JM002-removebg-preview.png";
+import MouseImg from "../assets/MS001-removebg-preview.png";
+import MousepadImg from "../assets/MP001-removebg-preview.png";
+import PoleraImg from "../assets/PP001-removebg-preview.png";
+
+// Mapa título → imagen (las claves deben coincidir EXACTAMENTE con la BD)
+const imageMap = {
+  "Catan": CatanImg,
+  "Carcassonne": CarcassonneImg,
+  "Joystick Xbox Series X": ControlXboxImg,
+  "Auriculares Gamer HyperX Cloud II": AudifonosImg,
+  "Mouse Logitech G502 HERO": MouseImg,
+  "Mousepad Razer Goliathus": MousepadImg,
+  "PlayStation 5": ps5Img,
+  "PC Gamer ASUS ROG Strix": asusImg,
+  "Silla Gamer Secretlab Titan": sillaImg,
+  "Polera Gamer Personalizada 'Level-Up'": PoleraImg,
+};
+
 export default function Catalogo() {
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
-  const products = useMemo(
-    () => [
-      { id: 1, title: "PlayStation 5", category: "Consolas", price: 549990, img: ps5Img, href: "/detalle" },
-      { id: 2, title: "PC Gamer ASUS ROG Strix", category: "Computadores Gamers", price: 1299990, img: asusImg, href: "/detalle2" },
-      { id: 3, title: "Silla Gamer Secretlab Titan", category: "Muebles", price: 349990, img: sillaImg, href: "/detalle3" },
-      { id: 4, title: "Catan", category: "Juegos de Mesa", price: 29990, img: Catan, href: "/detalle4" },
-      { id: 5, title: "Audífonos Gamer HyperX Cloud II", category: "Accesorios", price: 79990, img: Audifonos, href: "/detalle5" },
-      { id: 6, title: "Joystick Xbox Series X", category: "Accesorios", price: 59990, img: ControlXbox, href: "/detalle6" },
-      { id: 7, title: "Carcassonne", category: "Juegos de Mesa", price: 24990, img: Carcasssone, href: "/detalle7" },
-      { id: 8, title: "Mouse Logitech G502 HERO", category: "Accesorios", price: 49990, img: Mouse, href: "/detalle8" },
-      { id: 9, title: "Mousepad Razer Goliathus", category: "Accesorios", price: 29990, img: Mousepad, href: "/detalle9" },
-      { id: 10, title: "Polera Gamer Personalizada 'Level-Up'", category: "Merchandising", price: 14990, img: Polera, href: "/detalle10" }
-    ],
-    []
-  );
-
+  const [products, setProducts] = useState([]);
   const [filter, setFilter] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
+  // Carga de productos desde el backend
+  useEffect(() => {
+    let mounted = true;
+
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const { getProducts } = await import("../services/ProductService");
+        const res = await getProducts();
+        if (mounted) setProducts(res.data || []);
+      } catch (err) {
+        console.error("Error cargando productos:", err);
+        setError("Error al cargar productos desde el backend");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Categorías sin duplicados
   const categories = useMemo(() => {
-    const set = new Set(products.map((p) => p.category));
-    return Array.from(set);
+    const set = new Set(products.map((p) => p.category || ""));
+    return Array.from(set).filter(Boolean);
   }, [products]);
 
+  // Filtro por categoría o título
   const filtered = useMemo(() => {
     const f = filter.trim().toLowerCase();
     if (!f || f === "all") return products;
-    return products.filter(
-      (p) => p.category.toLowerCase().includes(f) || p.title.toLowerCase().includes(f)
-    );
+    return products.filter((p) => {
+      const cat = (p.category || "").toLowerCase();
+      const title = (p.title || "").toLowerCase();
+      return cat.includes(f) || title.includes(f);
+    });
   }, [filter, products]);
 
   return (
@@ -82,44 +115,69 @@ export default function Catalogo() {
       </header>
 
       <section className="row g-3" aria-live="polite">
-        {filtered.map((p) => (
-          <article key={p.id} className="col-md-4">
-            <div className="card card-dark h-100">
-              <div className="product-image">
-                <img
-                // eslint-disbable-next-line no-undef
-                  src={p.img || principal}
-                  alt={p.title}
-                  className="img-fluid"
-                  onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    // eslint-disbable-next-line no-undef
-                    e.currentTarget.src = principal;
-                  }}
-                />
-              </div>
-              <div className="p-3">
-                <h3>{p.title}</h3>
-                <p className="section-title">{p.category}</p>
-                <div className="d-flex justify-content-between align-items-center mt-3">
-                  <p className="h5 mb-0">${p.price.toLocaleString()} CLP</p>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => {
-                      addToCart(p);
-                      navigate('/Carrito');
+        {/* Cargando */}
+        {loading && (
+          <div className="col-12">
+            <div className="card card-dark p-3">Cargando productos...</div>
+          </div>
+        )}
+
+        {/* Error */}
+        {error && (
+          <div className="col-12">
+            <div className="card card-dark p-3">{error}</div>
+          </div>
+        )}
+
+        {/* Productos */}
+        {filtered.map((p) => {
+          // Imagen del producto:
+          // NO usamos p.img porque no son URLs válidas aún
+          const src = imageMap[p.title] || ps5Img;
+
+          return (
+            <article key={p.id} className="col-md-4">
+              <div className="card card-dark h-100">
+                <div className="product-image">
+                  <img
+                    src={src}
+                    alt={p.title}
+                    className="img-fluid"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = ps5Img;
                     }}
-                  >
-                    Agregar
-                  </button>
+                  />
+                </div>
+                <div className="p-3">
+                  <h3>{p.title}</h3>
+                  <p className="section-title">{p.category}</p>
+                  <div className="d-flex justify-content-between align-items-center mt-3">
+                    <p className="h5 mb-0">
+                      ${p.price.toLocaleString()} CLP
+                    </p>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => {
+                        addToCart(p);
+                        navigate("/Carrito");
+                      }}
+                    >
+                      Agregar
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </article>
-        ))}
-        {filtered.length === 0 && (
+            </article>
+          );
+        })}
+
+        {/* Sin coincidencias */}
+        {!loading && !error && filtered.length === 0 && (
           <div className="col-12">
-            <div className="card card-dark p-3">No se encontraron productos que coincidan.</div>
+            <div className="card card-dark p-3">
+              No se encontraron productos que coincidan.
+            </div>
           </div>
         )}
       </section>
