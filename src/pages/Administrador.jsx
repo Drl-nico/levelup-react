@@ -1,7 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/admin.css";
 
 export default function Administrador() {
+	const navigate = useNavigate();
+
 	return (
 		<div className="admin-page-root">
 			<aside className="sidebar">
@@ -12,8 +15,8 @@ export default function Administrador() {
 							<a href="/cliente">
 								<li>Clientes </li>
 							</a>
-							<li>Inventario</li>
-							<li>Reportes</li>
+							<li onClick={() => navigate("/inventario")}>Inventario</li>
+							<li onClick={() => navigate("/Boleta")}>Boletas</li>
 							<li>Empleados</li>
 							<li>Customisacion</li>
 						</ul>

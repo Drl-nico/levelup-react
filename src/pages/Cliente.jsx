@@ -1,35 +1,54 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getAllUsers, deleteUser } from "../services/UserService";
 import "../styles/admin.css";
 
 export default function Cliente() {
   const navigate = useNavigate();
   const [usuarios, setUsuarios] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    // Verificar que el usuario actual sea admin
-    let current = null;
+    // Verificar acceso admin
+    let currentUser = null;
     try {
-      current = JSON.parse(localStorage.getItem("currentUser") || "null");
-    } catch (err) {
-      current = null;
+      currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+    } catch {
+      currentUser = null;
     }
 
-    if (!current || current.role !== "admin") {
-      // Si no es admin, redirigir a login
-      navigate("/login", { replace: true });
+    if (!currentUser || currentUser.role !== "admin") {
+      navigate("/login");
       return;
     }
 
-    // Cargar usuarios desde localStorage (guardados por Registro.jsx)
-    let us = [];
+    cargarUsuarios();
+  }, []);
+
+  // Cargar usuarios desde el backend real
+  const cargarUsuarios = async () => {
     try {
-      us = JSON.parse(localStorage.getItem("usuarios") || "[]");
+      const data = await getAllUsers();
+      setUsuarios(data);
+      setError("");
     } catch (err) {
-      us = [];
+      console.error(err);
+      setError("Error al cargar usuarios desde el servidor.");
     }
-    setUsuarios(us);
-  }, [navigate]);
+  };
+
+  // Eliminar usuario
+  const eliminarUsuario = async (id) => {
+    if (!window.confirm("¿Seguro que deseas eliminar este usuario?")) return;
+
+    try {
+      await deleteUser(id);
+      cargarUsuarios();
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo eliminar el usuario.");
+    }
+  };
 
   return (
     <div className="admin-page-root">
@@ -38,92 +57,75 @@ export default function Cliente() {
           <div className="logo mb-3">Company</div>
           <nav>
             <ul>
-              <li>Clientes</li>
-              <li>Inventario</li>
-              <li>Reportes</li>
+              <li className="active">Clientes</li>
+              <li onClick={() => navigate("/inventario")}>Inventario</li>
+              <li onClick={() => navigate("/Boleta")}>Boletas</li>
               <li>Empleados</li>
-              <li>Customisacion</li>
+              <li>Customización</li>
             </ul>
           </nav>
         </div>
       </aside>
 
-      <div className="main-content">
-        <header className="d-flex align-items-center">
-          <h1>Usuarios</h1>
+      <div className="main-content p-4">
+        <header className="d-flex align-items-center justify-content-between">
+          <h1>Usuarios Registrados</h1>
+
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate("/nuevo-cliente")}
+          >
+            Crear Usuario
+          </button>
         </header>
 
-        <main>
-          <section className="content-bottom">
-            <div className="table-responsive">
-              <table className="table table-striped" id="usuariosTable">
-                <thead>
+        <main className="mt-4">
+          {error && (
+            <div className="alert alert-danger text-center">{error}</div>
+          )}
+
+          <div className="table-responsive">
+            <table className="table table-dark table-striped">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Edad</th>
+                  <th>Región</th>
+                  <th>Comuna</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {usuarios.length === 0 ? (
                   <tr>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Edad</th>
-                    <th>Región</th>
-                    <th>Comuna</th>
-                    <th>Acciones</th>
+                    <td colSpan="6" className="text-center">
+                      No hay usuarios registrados.
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {usuarios.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="text-center">
-                        No hay usuarios registrados.
+                ) : (
+                  usuarios.map((u) => (
+                    <tr key={u.id}>
+                      <td>{u.nombre}</td>
+                      <td>{u.email}</td>
+                      <td>{u.edad}</td>
+                      <td>{u.region}</td>
+                      <td>{u.comuna}</td>
+                      <td>
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => eliminarUsuario(u.id)}
+                        >
+                          Eliminar
+                        </button>
                       </td>
                     </tr>
-                  ) : (
-                    usuarios.map((u, idx) => (
-                      <tr key={idx}>
-                        <td>{u.nombre || u.name || "-"}</td>
-                        <td>{u.email || "-"}</td>
-                        <td>{u.edad || u.age || "-"}</td>
-                        <td>{u.region || "-"}</td>
-                        <td>{u.comuna || "-"}</td>
-                        <td>
-                          <button
-                            className="btn btn-sm btn-danger me-2"
-                            onClick={() => {
-                              if (!window.confirm(`¿Eliminar usuario ${u.email}?`)) return;
-                              // eliminar usuario por email
-                              const nuevos = usuarios.filter((x) => x.email !== u.email);
-                              try {
-                                localStorage.setItem("usuarios", JSON.stringify(nuevos));
-                              } catch (err) {
-                                console.error("No se pudo actualizar localStorage", err);
-                              }
-                              setUsuarios(nuevos);
-                            }}
-                          >
-                            Eliminar
-                          </button>
-                          {/* future: editar */}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <div className="d-flex justify-content-center gap-2 mt-4">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => navigate("/administrador")}
-              >
-                Volver
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => navigate("/nuevo-cliente")}
-              >
-                Crear Usuario
-              </button>
-            </div>
-          </section>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </main>
       </div>
     </div>

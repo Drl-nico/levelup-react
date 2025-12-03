@@ -189,3 +189,8 @@
 /* Accessibility: focus states */
 .admin-page-root .sidebar nav ul a:focus,
 .admin-page-root .sidebar nav ul a:hover { outline: none; }
+.admin-page-root label.form-label {
+    color: #0d6efd;       /* Azul Bootstrap */
+    font-weight: 600;
+    font-size: 0.95rem;
+}

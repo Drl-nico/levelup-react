@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { crearBoleta } from "../services/BoletaService";   
 import '../utils/Carrito.logic.js';
 import '../styles/carrito.css';
 
@@ -21,19 +22,42 @@ const Carrito = () => {
   const location = useLocation();
   const productoSeleccionado = location.state?.productoSeleccionado;
 
-  const { cartItems, removeFromCart, updateQuantity, cartTotal, addToCart } = useCart();
+  const { cartItems, removeFromCart, cartTotal, addToCart } = useCart();
 
-  const [productos, setProductos] = useState(() => {
+  const [productos] = useState(() => {
     const savedProducts = localStorage.getItem("productosAdmin");
     return savedProducts ? JSON.parse(savedProducts) : productosIniciales;
   });
 
+  const handlePagar = async () => {
+    try {
+      const boleta = {
+        total: cartTotal,
+        items: cartItems.map(item => ({
+          productId: item.id,
+          amount: item.quantity,
+          price: item.price,
+          subtotal: item.price * item.quantity,
+        }))
+      };
+
+      await crearBoleta(boleta);
+
+      // Vaciar carrito
+      cartItems.forEach(item => removeFromCart(item.id));
+
+      alert("Compra realizada y boleta guardada en la base de datos ✔");
+    } catch (err) {
+      console.error(err);
+      alert("Error al procesar la compra ❌");
+    }
+  };
 
 
   return (
     <div className="carrito-container">
-      
-      {/* Mostrar producto seleccionado desde Catalogo */}
+
+      {/* Mostrar producto seleccionado desde Catálogo */}
       {productoSeleccionado && (
         <section className="producto-seleccionado">
           <h2>Producto seleccionado:</h2>
@@ -42,6 +66,7 @@ const Carrito = () => {
             <h3>{productoSeleccionado.title}</h3>
             <p>Categoría: {productoSeleccionado.category}</p>
             <p>Precio: ${productoSeleccionado.price.toLocaleString()} CLP</p>
+
             <button
               onClick={() => addToCart({
                 id: productoSeleccionado.id,
@@ -62,7 +87,7 @@ const Carrito = () => {
       <section className="productos" id="product-list">
         <h2>Productos Disponibles</h2>
         <div className="productos-grid">
-          {productos.map((p, i) => (
+          {productos.map((p) => (
             <article key={p.codigo} className="producto">
               <img src={p.img} alt={p.nombre} />
               <h3>{p.nombre}</h3>
@@ -90,20 +115,23 @@ const Carrito = () => {
       {/* Carrito actual */}
       <aside className="carrito-actual">
         <h2>Tu Carrito</h2>
+
         <div id="cart-list">
           {cartItems.length === 0 ? (
             <p className="carrito-vacio">Tu carrito está vacío</p>
           ) : (
-            cartItems.map((item, i) => (
+            cartItems.map((item) => (
               <div key={item.id} className="carrito-item">
                 <div className="item-info">
                   <span className="item-nombre">{item.title}</span>
                   <span className="item-cantidad">x{item.quantity}</span>
                 </div>
+
                 <div className="item-precio-acciones">
                   <span className="item-precio">
                     ${(item.price * item.quantity).toLocaleString()} CLP
                   </span>
+
                   <button
                     onClick={() => removeFromCart(item.id)}
                     className="btn-eliminar"
@@ -116,26 +144,55 @@ const Carrito = () => {
             ))
           )}
         </div>
+
         {cartItems.length > 0 && (
           <>
             <div id="cart-total">
               Total: ${cartTotal.toLocaleString()} CLP
             </div>
+
             <div className="carrito-acciones">
               <button
-                onClick={() => {
-                  cartItems.forEach(item => removeFromCart(item.id));
-                }}
+                onClick={() => cartItems.forEach(item => removeFromCart(item.id))}
                 className="btn-vaciar"
               >
                 Vaciar Carrito
               </button>
+
               <button
-                className="btn-pagar"
-                onClick={() => alert('¡Gracias por tu compra!')}
-              >
-                Proceder al pago
-              </button>
+  className="btn-pagar"
+  onClick={async () => {
+    try {
+      const boleta = {
+        total: cartTotal,
+        items: cartItems.map(item => ({
+          productId: item.id,
+          amount: item.quantity,
+          price: item.price,
+          subtotal: item.price * item.quantity
+        }))
+      };
+
+      const response = await fetch("http://localhost:8081/api/boletas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(boleta)
+      });
+
+      if (!response.ok) throw new Error("Error en backend");
+
+      alert("Compra realizada con éxito 🎉");
+      
+      cartItems.forEach(item => removeFromCart(item.id));
+
+    } catch (err) {
+      console.error(err);
+      alert("Error al procesar la compra ❌");
+    }
+  }}
+>
+  Proceder al pago
+</button>
             </div>
           </>
         )}

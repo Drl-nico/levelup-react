@@ -18,6 +18,9 @@ import DetalleBlog1 from "./pages/Detalle-blog1";
 import DetalleBlog2 from "./pages/Detalle-blog2";
 import Carrito from "./pages/Carrito";
 import { CartProvider } from "./context/CartContext";
+import Boletas from "./pages/Boleta";
+import Inventario from "./pages/Inventario";
+
 
 export default function App() {
   return (
@@ -41,7 +44,9 @@ export default function App() {
             <Route path="/Blog" element={<Blog />} />
             <Route path="/DetalleBlog1" element={<DetalleBlog1 />} />
             <Route path="/DetalleBlog2" element={<DetalleBlog2 />} />
+            <Route path="/Boleta" element={<Boletas />} />
             <Route path="/Carrito" element={<Carrito />} />
+            <Route path="/inventario" element={<Inventario />} />
           </Routes>
         </main>
         <Footer />
