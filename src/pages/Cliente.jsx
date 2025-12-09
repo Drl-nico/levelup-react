@@ -9,19 +9,6 @@ export default function Cliente() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Verificar acceso admin
-    let currentUser = null;
-    try {
-      currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
-    } catch {
-      currentUser = null;
-    }
-
-    if (!currentUser || currentUser.role !== "admin") {
-      navigate("/login");
-      return;
-    }
-
     cargarUsuarios();
   }, []);
 

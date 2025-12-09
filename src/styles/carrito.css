@@ -240,3 +240,32 @@
     height: 150px;
   }
 }
+/* Estilos para mensajes de estado */
+.loading, .error, .no-productos {
+  text-align: center;
+  padding: 3rem 2rem;
+  font-size: 1.1rem;
+  color: #a0a0a0;
+  background: #1e1e1e;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.error {
+  color: #ff6b6b;
+  border: 1px solid #ff4444;
+}
+
+.loading {
+  color: #4a4af4;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

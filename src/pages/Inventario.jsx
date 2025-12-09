@@ -8,13 +8,6 @@ export default function Inventario() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const current = JSON.parse(localStorage.getItem("currentUser") || "null");
-
-    if (!current || current.role !== "admin") {
-      navigate("/login", { replace: true });
-      return;
-    }
-
     loadProductos();
   }, []);
 
@@ -36,7 +29,7 @@ export default function Inventario() {
             <ul>
               <li onClick={() => navigate("/cliente")}>Clientes</li>
               <li className="active">Inventario</li>
-              <li onClick={() => navigate("/boletas")}>Boletas</li>
+              <li onClick={() => navigate("/Boleta")}>Boletas</li>
               <li>Empleados</li>
               <li>Customización</li>
             </ul>

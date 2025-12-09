@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import { getAllProducts } from "../services/ProductService"; // ✔ Corregido
+import { getAllProducts } from "../services/ProductService";
 import "../styles/styles2.css";
 import "../styles/catalogo.css";
 

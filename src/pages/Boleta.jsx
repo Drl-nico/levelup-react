@@ -8,13 +8,6 @@ export default function Boletas() {
   const [boletas, setBoletas] = useState([]);
 
   useEffect(() => {
-    const current = JSON.parse(localStorage.getItem("currentUser") || "null");
-
-    if (!current || current.role !== "admin") {
-      navigate("/login", { replace: true });
-      return;
-    }
-
     loadBoletas();
   }, [navigate]);
 

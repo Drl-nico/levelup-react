@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/diseno.css";
-import { registerUser } from "../services/UserService";
+import { useAuth } from "../context/AuthContext";
 
 export default function Registro() {
   const navigate = useNavigate();
@@ -29,6 +29,8 @@ export default function Registro() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const { register } = useAuth();
+
   const validarFormulario = async (e) => {
     e.preventDefault();
 
@@ -49,7 +51,7 @@ export default function Registro() {
     }
 
     try {
-      await registerUser({
+      const result = await register({
         nombre,
         email,
         edad: parseInt(edad, 10),
@@ -62,7 +64,12 @@ export default function Registro() {
       setSuccess(true);
       setMensajes([]);
 
-      setTimeout(() => navigate("/login"), 800);
+      // if registration returned token and user, navigate to home automatically
+      if (result && result.token) {
+        setTimeout(() => navigate("/"), 800);
+      } else {
+        setTimeout(() => navigate("/login"), 800);
+      }
     } catch (err) {
       console.error(err);
       setMensajes(["Error al registrar usuario."]);

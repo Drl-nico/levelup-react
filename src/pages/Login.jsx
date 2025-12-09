@@ -1,32 +1,30 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/diseno.css";
-import { loginUser } from "../services/UserService";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mensaje, setMensaje] = useState("");
 
+  const { login } = useAuth();
+
   const iniciarSesion = async () => {
     setMensaje("");
 
     try {
-      const user = await loginUser(email, password);
+      const result = await login(email, password);
 
-      if (!user) {
+      if (!result || !result.token) {
         setMensaje(
           `<div class="alert alert-danger">Usuario o contraseña incorrectos.</div>`
         );
         return;
       }
 
-      localStorage.setItem(
-        "currentUser",
-        JSON.stringify({ email: user.email, role: user.role })
-      );
-
-      if (user.role === "admin") {
+      const storedUser = result.user || JSON.parse(localStorage.getItem("user") || "null");
+      if (storedUser && (storedUser.role === "admin" || storedUser.role === "ADMIN")) {
         window.location.href = "/administrador";
       } else {
         window.location.href = "/";

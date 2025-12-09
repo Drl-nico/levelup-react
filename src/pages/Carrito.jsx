@@ -1,22 +1,11 @@
-import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
-import { crearBoleta } from "../services/BoletaService";   
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { useCart } from "../context/CartContext";
+import { crearBoleta } from "../services/BoletaService";
+import { getAllProducts } from "../services/ProductService";
+import { getCurrentUser } from "../services/authService";
 import '../utils/Carrito.logic.js';
 import '../styles/carrito.css';
-
-const productosIniciales = [
-  { codigo: "JM001", nombre: "Catan", precio: 29990, descripcion: "Juego de mesa clásico.", img: "img/Sebas/JM001" },
-  { codigo: "JM002", nombre: "Carcassonne", precio: 24990, descripcion: "Juego de losetas con meeples.", img: "img/URL_AQUI.jpg" },
-  { codigo: "AC001", nombre: "Joystick Xbox Series X", precio: 59990, descripcion: "Control inalámbrico para Xbox.", img: "img/URL_AQUI.jpg" },
-  { codigo: "AC002", nombre: "Auriculares Gamer HyperX Cloud II", precio: 79990, descripcion: "Auriculares gaming con micrófono.", img: "img/URL_AQUI.jpg" },
-  { codigo: "CO001", nombre: "PlayStation 5", precio: 549990, descripcion: "Consola de última generación.", img: "img/URL_AQUI.jpg" },
-  { codigo: "CG001", nombre: "PC Gamer ASUS ROG Strix", precio: 1299990, descripcion: "Computadora gamer potente.", img: "img/URL_AQUI.jpg" },
-  { codigo: "SG001", nombre: "Silla Gamer Secretlab Titan", precio: 349990, descripcion: "Silla ergonómica para gamers.", img: "img/URL_AQUI.jpg" },
-  { codigo: "MS001", nombre: "Mouse Logitech G502 HERO", precio: 49990, descripcion: "Mouse gaming de alta precisión.", img: "img/URL_AQUI.jpg" },
-  { codigo: "MP001", nombre: "Mousepad Razer Goliathus", precio: 29990, descripcion: "Mousepad RGB extendido.", img: "img/URL_AQUI.jpg" },
-  { codigo: "PP001", nombre: "Polera Gamer Personalizada 'Level-Up'", precio: 14990, descripcion: "Polera personalizada para gamers.", img: "img/URL_AQUI.jpg" }
-];
 
 const Carrito = () => {
   const location = useLocation();
@@ -24,35 +13,64 @@ const Carrito = () => {
 
   const { cartItems, removeFromCart, cartTotal, addToCart } = useCart();
 
-  const [productos] = useState(() => {
-    const savedProducts = localStorage.getItem("productosAdmin");
-    return savedProducts ? JSON.parse(savedProducts) : productosIniciales;
-  });
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Cargar productos desde el backend
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const data = await getAllProducts();
+        console.log('Productos cargados desde backend:', data);
+        setProductos(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error al cargar productos:', err);
+        setError('No se pudieron cargar los productos');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Manejo del pago (creación de la boleta)
   const handlePagar = async () => {
     try {
+      const user = getCurrentUser();
+      if (!user) {
+        alert("Debes iniciar sesión para realizar una compra");
+        return;
+      }
+
       const boleta = {
+        userId: user.id,
         total: cartTotal,
         items: cartItems.map(item => ({
           productId: item.id,
           amount: item.quantity,
           price: item.price,
-          subtotal: item.price * item.quantity,
+          subtotal: item.price * item.quantity
         }))
       };
 
+      // Enviar la boleta al backend
       await crearBoleta(boleta);
 
-      // Vaciar carrito
+      alert("Compra realizada con éxito 🎉");
+
+      // Vaciar el carrito después de realizar la compra
       cartItems.forEach(item => removeFromCart(item.id));
 
-      alert("Compra realizada y boleta guardada en la base de datos ✔");
     } catch (err) {
       console.error(err);
-      alert("Error al procesar la compra ❌");
+      const errorMessage = err.response?.data?.message || err.message || "Error desconocido";
+      alert(`Error al procesar la compra: ${errorMessage}`);
     }
   };
-
 
   return (
     <div className="carrito-container">
@@ -86,30 +104,39 @@ const Carrito = () => {
       {/* Lista de productos disponibles */}
       <section className="productos" id="product-list">
         <h2>Productos Disponibles</h2>
-        <div className="productos-grid">
-          {productos.map((p) => (
-            <article key={p.codigo} className="producto">
-              <img src={p.img} alt={p.nombre} />
-              <h3>{p.nombre}</h3>
-              <p className="precio">${p.precio.toLocaleString()} CLP</p>
-              <p className="descripcion">{p.descripcion}</p>
-              <div className="producto-botones">
-                <button
-                  onClick={() => addToCart({
-                    id: p.codigo,
-                    title: p.nombre,
-                    price: p.precio,
-                    img: p.img,
-                    category: p.descripcion
-                  })}
-                  className="btn-agregar"
-                >
-                  🛒 Agregar al carrito
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
+
+        {loading ? (
+          <p className="loading">Cargando productos...</p>
+        ) : error ? (
+          <p className="error">{error}</p>
+        ) : productos.length === 0 ? (
+          <p className="no-productos">No hay productos disponibles</p>
+        ) : (
+          <div className="productos-grid">
+            {productos.map((p) => (
+              <article key={p.codigo || p.id} className="producto">
+                <img src={p.img || p.imagen} alt={p.nombre || p.title} />
+                <h3>{p.nombre || p.title}</h3>
+                <p className="precio">${(p.precio || p.price).toLocaleString()} CLP</p>
+                <p className="descripcion">{p.descripcion || p.description}</p>
+                <div className="producto-botones">
+                  <button
+                    onClick={() => addToCart({
+                      id: p.codigo || p.id,
+                      title: p.nombre || p.title,
+                      price: p.precio || p.price,
+                      img: p.img || p.imagen,
+                      category: p.descripcion || p.description
+                    })}
+                    className="btn-agregar"
+                  >
+                    🛒 Agregar al carrito
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Carrito actual */}
@@ -160,39 +187,11 @@ const Carrito = () => {
               </button>
 
               <button
-  className="btn-pagar"
-  onClick={async () => {
-    try {
-      const boleta = {
-        total: cartTotal,
-        items: cartItems.map(item => ({
-          productId: item.id,
-          amount: item.quantity,
-          price: item.price,
-          subtotal: item.price * item.quantity
-        }))
-      };
-
-      const response = await fetch("http://localhost:8081/api/boletas", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(boleta)
-      });
-
-      if (!response.ok) throw new Error("Error en backend");
-
-      alert("Compra realizada con éxito 🎉");
-      
-      cartItems.forEach(item => removeFromCart(item.id));
-
-    } catch (err) {
-      console.error(err);
-      alert("Error al procesar la compra ❌");
-    }
-  }}
->
-  Proceder al pago
-</button>
+                className="btn-pagar"
+                onClick={handlePagar}
+              >
+                Proceder al pago
+              </button>
             </div>
           </>
         )}

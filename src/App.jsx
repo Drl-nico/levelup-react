@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import { AuthProvider } from "./context/AuthContext";
 import Home from "./pages/Home";
 import Footer from "./components/Footer";
 import Login from "./pages/Login";
@@ -8,6 +9,7 @@ import Registro from "./pages/Registro";
 import Administrador from "./pages/Administrador";
 import Cliente from "./pages/Cliente";
 import NuevoCliente from "./pages/NuevoCliente";
+import RequireAuth from "./components/RequireAuth";
 import "./styles/admin.css";
 import Catalogo from "./pages/Catalogo";
 import Detalle from "./pages/Detalle";
@@ -25,32 +27,37 @@ import Inventario from "./pages/Inventario";
 export default function App() {
   return (
     <div className="app-root">
-      <CartProvider>
-        <Navbar />
-        <main>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/administrador" element={<Administrador />} />
-            <Route path="/cliente" element={<Cliente />} />
-            <Route path="/nuevo-cliente" element={<NuevoCliente />} />
-            <Route path="/Contact" element={<Contact />} />
-            <Route path="/registro" element={<Registro />} />
-            <Route path="/Catalogo" element={<Catalogo />} />
-            <Route path="/Detalle" element={<Detalle />} />
-            <Route path="/Detalle2" element={<Detalle2 />} />
-            <Route path="/Detalle3" element={<Detalle3 />} />
-            <Route path="/Blog" element={<Blog />} />
-            <Route path="/DetalleBlog1" element={<DetalleBlog1 />} />
-            <Route path="/DetalleBlog2" element={<DetalleBlog2 />} />
-            <Route path="/Boleta" element={<Boletas />} />
-            <Route path="/Carrito" element={<Carrito />} />
-            <Route path="/inventario" element={<Inventario />} />
-          </Routes>
-        </main>
-        <Footer />
-      </CartProvider>
+      <AuthProvider>
+        <CartProvider>
+          <Navbar />
+          <main>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              {/* Admin protected routes */}
+              <Route element={<RequireAuth requiredRole={"ADMIN"} />}>
+                <Route path="/administrador" element={<Administrador />} />
+                <Route path="/cliente" element={<Cliente />} />
+                <Route path="/Boleta" element={<Boletas />} />
+                <Route path="/inventario" element={<Inventario />} />
+              </Route>
+              <Route path="/nuevo-cliente" element={<NuevoCliente />} />
+              <Route path="/Contact" element={<Contact />} />
+              <Route path="/registro" element={<Registro />} />
+              <Route path="/Catalogo" element={<Catalogo />} />
+              <Route path="/Detalle" element={<Detalle />} />
+              <Route path="/Detalle2" element={<Detalle2 />} />
+              <Route path="/Detalle3" element={<Detalle3 />} />
+              <Route path="/Blog" element={<Blog />} />
+              <Route path="/DetalleBlog1" element={<DetalleBlog1 />} />
+              <Route path="/DetalleBlog2" element={<DetalleBlog2 />} />
+              <Route path="/Carrito" element={<Carrito />} />
+            </Routes>
+          </main>
+          <Footer />
+        </CartProvider>
+      </AuthProvider>
     </div>
   );
 }

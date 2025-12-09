@@ -1,11 +1,11 @@
-import axios from "axios";
+import api from "./api";
 
-const API_URL = "http://localhost:8081/api/users";
+const USERS_URL = "/users"; // api base is set in src/services/api.js
 
 // Obtener usuario por email con manejo de 404
 export const getUserByEmail = async (email) => {
   try {
-    const response = await axios.get(`${API_URL}/email`, {
+    const response = await api.get(`${USERS_URL}/email`, {
       params: { email },
     });
     return response.data;
@@ -17,27 +17,43 @@ export const getUserByEmail = async (email) => {
   }
 };
 
-// Login usando backend
+// Login usando backend (/api/auth/login) - guarda token/user si el backend lo devuelve
 export const loginUser = async (email, password) => {
-  const user = await getUserByEmail(email);
-  if (!user) return null;
-  if (user.password !== password) return null;
-  return user;
+  const resp = await api.post(`/auth/login`, { email, password });
+  const data = resp.data;
+  if (data && data.token) {
+    try {
+      localStorage.setItem("token", data.token);
+      // set Authorization header immediately for api instance
+      try { api.defaults.headers.common["Authorization"] = `Bearer ${data.token}`; } catch(e) {}
+      if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
+    } catch (e) {}
+  }
+  return data;
 };
 
-// Registrar
+// Registrar (delegar a /api/auth/register). Guarda token/user si se devuelve.
 export const registerUser = async (user) => {
-  const response = await axios.post(API_URL, user);
-  return response.data;
+  const resp = await api.post(`/auth/register`, user);
+  const data = resp.data;
+  if (data && data.token) {
+    try {
+      localStorage.setItem("token", data.token);
+      // set Authorization header immediately for api instance
+      try { api.defaults.headers.common["Authorization"] = `Bearer ${data.token}`; } catch(e) {}
+      if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
+    } catch (e) {}
+  }
+  return data;
 };
 
-// Obtener todos
+// Obtener todos (requiere autorización en backend)
 export const getAllUsers = async () => {
-  const response = await axios.get(API_URL);
+  const response = await api.get(USERS_URL);
   return response.data;
 };
 
 // Eliminar
 export const deleteUser = async (id) => {
-  return await axios.delete(`${API_URL}/${id}`);
+  return await api.delete(`${USERS_URL}/${id}`);
 };

@@ -1,15 +1,13 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:8081/api/boletas";
+import api from "./api";
 
 // Crear boleta
 export const crearBoleta = async (boleta) => {
-  const response = await axios.post(API_URL, boleta);
+  const response = await api.post("/boletas", boleta);
   return response.data;
 };
 
 // Obtener todas las boletas (para ver historial)
 export const getBoletas = async () => {
-  const response = await axios.get(API_URL);
+  const response = await api.get("/boletas");
   return response.data;
 };
