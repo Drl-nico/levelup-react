@@ -1,16 +1,22 @@
-import axios from 'axios';
+import api from "./api";
 
-// URL base del backend
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8082/api/products';
+const BASE = "/products";
 
-// Obtener todos los productos (GET)
 export const getAllProducts = async () => {
   try {
-    const response = await axios.get(API_URL);
-    console.log('Productos obtenidos:', response.data);  // Verifica la respuesta en consola
+    const response = await api.get(BASE);
+    console.log('Productos obtenidos:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error al obtener productos:', error);
     throw error;
   }
 };
+
+export const getProducts = () => api.get(BASE);
+export const getProduct = (id) => api.get(`${BASE}/${id}`);
+export const createProduct = (data) => api.post(BASE, data);
+export const updateProduct = (id, data) => api.put(`${BASE}/${id}`, data);
+export const deleteProduct = (id) => api.delete(`${BASE}/${id}`);
+
+

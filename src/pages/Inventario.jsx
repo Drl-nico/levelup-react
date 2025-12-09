@@ -48,13 +48,14 @@ export default function Inventario() {
                 <th>Nombre</th>
                 <th>Categoría</th>
                 <th>Precio</th>
+                <th>Stock</th>
               </tr>
             </thead>
 
             <tbody>
               {productos.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="text-center">
+                  <td colSpan="5" className="text-center">
                     No hay productos registrados.
                   </td>
                 </tr>
@@ -62,9 +63,10 @@ export default function Inventario() {
                 productos.map((p) => (
                   <tr key={p.id}>
                     <td>{p.id}</td>
-                    <td>{p.name}</td>
+                    <td>{p.name || p.title}</td>
                     <td>{p.category}</td>
                     <td>${p.price?.toLocaleString()} CLP</td>
+                    <td>{p.stock}</td>
                   </tr>
                 ))
               )}

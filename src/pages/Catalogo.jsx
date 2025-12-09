@@ -5,25 +5,50 @@ import { getAllProducts } from "../services/ProductService";
 import "../styles/styles2.css";
 import "../styles/catalogo.css";
 
+// Imágenes locales (IMPORTANTE: todas las rutas correctas)
 import ps5Img from "../assets/ps5-producto.webp";
+import asusImg from "../assets/asus-removebg-preview.png";
+import sillaImg from "../assets/silla_gamer-removebg-preview(3).png";
+import CatanImg from "../assets/JM001-removebg-preview.png";
+import AudifonosImg from "../assets/AC002-removebg-preview.png";
+import ControlXboxImg from "../assets/AC001-removebg-preview.png";
+import CarcassonneImg from "../assets/JM002-removebg-preview.png";
+import MouseImg from "../assets/MS001-removebg-preview.png";
+import MousepadImg from "../assets/MP001-removebg-preview.png";
+import PoleraImg from "../assets/PP001-removebg-preview.png";
 
-const principal = ps5Img;
+// Mapa título → imagen (las claves deben coincidir EXACTAMENTE con la BD)
+const imageMap = {
+  "Catan": CatanImg,
+  "Carcassonne": CarcassonneImg,
+  "Joystick Xbox Series X": ControlXboxImg,
+  "Auriculares Gamer HyperX Cloud II": AudifonosImg,
+  "Mouse Logitech G502 HERO": MouseImg,
+  "Mousepad Razer Goliathus": MousepadImg,
+  "PlayStation 5": ps5Img,
+  "PC Gamer ASUS ROG Strix": asusImg,
+  "Silla Gamer Secretlab Titan": sillaImg,
+  "Polera Gamer Personalizada 'Level-Up'": PoleraImg,
+};
 
 export default function Catalogo() {
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [filter, setFilter] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data = await getAllProducts();  // ✔ Ahora conectado al backend
+        setLoading(true);
+        const data = await getAllProducts();
         setProducts(data);
+        setError(null);
       } catch (err) {
+        console.error("Error cargando productos:", err);
         setError("Error al cargar los productos");
       } finally {
         setLoading(false);
@@ -33,20 +58,22 @@ export default function Catalogo() {
     fetchProducts();
   }, []);
 
+  // Categorías sin duplicados
   const categories = useMemo(() => {
-    const set = new Set(products.map((p) => p.category));
-    return Array.from(set);
+    const set = new Set(products.map((p) => p.category || ""));
+    return Array.from(set).filter(Boolean);
   }, [products]);
 
+  // Filtro por categoría o título
   const filtered = useMemo(() => {
     const f = filter.trim().toLowerCase();
     if (!f || f === "all") return products;
 
-    return products.filter(
-      (p) =>
-        p.category.toLowerCase().includes(f) ||
-        p.title.toLowerCase().includes(f)
-    );
+    return products.filter((p) => {
+      const cat = (p.category || "").toLowerCase();
+      const title = (p.title || "").toLowerCase();
+      return cat.includes(f) || title.includes(f);
+    });
   }, [filter, products]);
 
   if (loading) return <div className="container py-4">Cargando productos...</div>;
@@ -87,44 +114,50 @@ export default function Catalogo() {
       </header>
 
       <section className="row g-3" aria-live="polite">
-        {filtered.map((p) => (
-          <article key={p.id} className="col-md-4">
-            <div className="card card-dark h-100">
-              <div className="product-image">
-                <img
-                  src={p.img || principal}
-                  alt={p.title}
-                  className="img-fluid"
-                  onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.src = principal;
-                  }}
-                />
-              </div>
+        {filtered.map((p) => {
+          // Imagen del producto:
+          // NO usamos p.img porque no son URLs válidas aún
+          const src = imageMap[p.title] || ps5Img;
 
-              <div className="p-3">
-                <h3>{p.title}</h3>
-                <p className="section-title">{p.category}</p>
-
-                <div className="d-flex justify-content-between align-items-center mt-3">
-                  <p className="h5 mb-0">${p.price.toLocaleString()} CLP</p>
-
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => {
-                      addToCart(p);
-                      navigate("/Carrito");
+          return (
+            <article key={p.id} className="col-md-4">
+              <div className="card card-dark h-100">
+                <div className="product-image">
+                  <img
+                    src={src}
+                    alt={p.title}
+                    className="img-fluid"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = ps5Img;
                     }}
-                  >
-                    Agregar
-                  </button>
+                  />
+                </div>
+                <div className="p-3">
+                  <h3>{p.title}</h3>
+                  <p className="section-title">{p.category}</p>
+                  <div className="d-flex justify-content-between align-items-center mt-3">
+                    <p className="h5 mb-0">
+                      ${p.price.toLocaleString()} CLP
+                    </p>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => {
+                        addToCart(p);
+                        navigate("/Carrito");
+                      }}
+                    >
+                      Agregar
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
 
-        {filtered.length === 0 && (
+        {/* Sin coincidencias */}
+        {!loading && !error && filtered.length === 0 && (
           <div className="col-12">
             <div className="card card-dark p-3">
               No se encontraron productos que coincidan.
