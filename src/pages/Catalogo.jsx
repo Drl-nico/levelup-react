@@ -21,6 +21,7 @@ import PoleraImg from "../assets/PP001-removebg-preview.png";
 const imageMap = {
   "Catan": CatanImg,
   "Carcassonne": CarcassonneImg,
+  "Batleship": CarcassonneImg, // Mapeado por si usas la misma imagen o falta importar la de Battleship
   "Joystick Xbox Series X": ControlXboxImg,
   "Auriculares Gamer HyperX Cloud II": AudifonosImg,
   "Mouse Logitech G502 HERO": MouseImg,
@@ -29,6 +30,7 @@ const imageMap = {
   "PC Gamer ASUS ROG Strix": asusImg,
   "Silla Gamer Secretlab Titan": sillaImg,
   "Polera Gamer Personalizada 'Level-Up'": PoleraImg,
+  "Polera Gamer Level-Up": PoleraImg, // Nombre exacto de la BD
 };
 
 export default function Catalogo() {
@@ -117,7 +119,24 @@ export default function Catalogo() {
         {filtered.map((p) => {
           // Imagen del producto:
           // NO usamos p.img porque no son URLs válidas aún
-          const src = imageMap[p.title] || ps5Img;
+
+          // Función auxiliar para buscar imagen insensible a mayúsculas/espacios
+          const getImageForProduct = (productTitle) => {
+            if (!productTitle) return ps5Img;
+
+            // 1. Búsqueda exacta
+            if (imageMap[productTitle]) return imageMap[productTitle];
+
+            // 2. Búsqueda flexible (ignorando mayúsculas y espacios)
+            const titleLower = productTitle.toLowerCase().trim();
+            const foundKey = Object.keys(imageMap).find(
+              key => key.toLowerCase().trim() === titleLower
+            );
+
+            return foundKey ? imageMap[foundKey] : ps5Img;
+          };
+
+          const src = getImageForProduct(p.title);
 
           return (
             <article key={p.id} className="col-md-4">
